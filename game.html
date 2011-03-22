@@ -1,0 +1,59 @@
+<html>                                                                  
+ <head>                                                                  
+ <script type="text/javascript" src="js/jquery.js"></script>          
+ <script type="text/javascript"> 
+	var bets = new Array();
+	
+   function getResults() {
+		
+		$.get('get.php', gotResponse);
+		drawShape();
+		parseBets();
+	}
+	function gotResponse(data) {
+		resultBox.innerHTML = data;
+	}
+	
+	function parseBets() {
+		bets = txtBet.value.split(",");
+	}
+	
+	function drawShape(){
+	  // get the canvas element using the DOM
+	  var canvas = document.getElementById('rouletteCanvas');
+
+	  // Make sure we don't execute when canvas isn't supported
+	  if (canvas.getContext){
+
+		// use getContext to use the canvas for drawing
+		var ctx = canvas.getContext('2d');
+
+		ctx.beginPath();
+		var x          = 75;               // x coordinate
+		var y          = 75;               // y coordinate
+		var radius     = 75;                    // Arc radius
+		var startAngle = 0;                     // Starting point on circle
+		var endAngle   = Math.PI*2; // End point on circle
+	
+		ctx.arc(x,y,radius,startAngle,endAngle, false);
+		ctx.fill();
+	  } else {
+		alert('You need Safari or Firefox 1.5+ to see this demo.');
+	  }
+  }
+ </script>                                                               
+ </head>                                                                 
+ <body>                                                                  
+   <!-- we will add our HTML content here -->  
+	<div style="width:100%">
+		<input type="text" id="txtBet" />
+		<input type="button" value="Spin" onClick="getResults()" />
+	</div>
+	<div style="width:100%">
+		<span>Result: </span><span id="resultBox"/>
+	</div>
+	<div style="width:100%" id="userResultBox">
+	</div>
+	<canvas id="rouletteCanvas" />
+ </body>                                                                 
+ </html>
