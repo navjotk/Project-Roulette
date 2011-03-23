@@ -18,7 +18,7 @@
    function startSpin() {
 		betAmount = txtAmount.value;
 		parseBets();
-		userResultBox.innerHTML = "";
+		document.getElementById('userResultBox').innerHTML = "";
 		if(betAmount<=balance && betAmount>0 && bets.length>0 && requestPending == false) {
 			rouletteImage.rotate(0, true);
 			ballImage.rotate(0, true);
@@ -43,23 +43,23 @@
 					}
 				}
 			}
-			userResultBox.innerHTML = errorMessage;
+			document.getElementById('userResultBox').innerHTML = errorMessage;
 		}
 	}
 	function gotResponse(data) {
 		ballImage.rotate(angles[Number(data)]*9.73);
 		requestPending = false;
 		if(in_array(data, bets)) {
-			userResultBox.innerHTML = "You won";
+			document.getElementById('userResultBox').innerHTML = "You won";
 			balance = balance+calculatePayout(betAmount);
 			showBalance();
 		} else {
-			userResultBox.innerHTML = "You lost";
+			$('userResultBox').innerHTML = "You lost";
 		}
 	}
 	
 	function parseBets() {
-		bets = txtBet.value.split(",");
+		bets = $('txtBet').value.split(",");
 	}
 	
 	function in_array(needle, haystack) {
@@ -87,7 +87,7 @@
 	}
 	
 	function showBalance() {
-		balanceBox.innerHTML = balance;
+		document.getElementById('balanceBox').innerHTML = balance;
 	}
 	
 	function calculatePayout(bet) {
@@ -96,7 +96,11 @@
 	
 	function rotateBall() {
 		ballImage.rotate(9.73);
-	}  
+	}
+	
+	function $(object) {
+		return document.getElementById(object);
+	}
  </script>                                                               
  </head>                                                                 
  <body onload="init()">                                                                    
