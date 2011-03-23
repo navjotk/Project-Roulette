@@ -11,30 +11,44 @@
 	var balance = 5000;
 	var betAmount = 0;
 	var angles = new Array(0,23,6,35,4,19,10,31,16,27,18,14,33,12,25,2,21,8,29,3,24,5,28,17,20,7,36,11,32,30,15,26,1,22,9,34,13);
-	var totalRotated = 0;
-	var gotResult = false;
+	var requestPending = false;
 	String.prototype.trim = function() {
 		return this.replace(/^\s+|\s+$/g,"");
 	}
    function startSpin() {
 		betAmount = txtAmount.value;
 		parseBets();
-		if(betAmount<=balance && betAmount>0 && bets.length>0) {
+		userResultBox.innerHTML = "";
+		if(betAmount<=balance && betAmount>0 && bets.length>0 && requestPending == false) {
 			rouletteImage.rotate(0, true);
 			ballImage.rotate(0, true);
-			totalRotated = 0;
 			balance-=betAmount;
 			showBalance();
 			animation_offset = 40;
 			rotate();
 			$.get('get.php', gotResponse);
-			//drawShape();
+			requestPending = true;
+		} else {
+			var errorMessage = "";
+			if(betAmount>balance) {
+				errorMessage = "Not enough balance";
+			} else {
+				if(betAmount==0) {
+					errorMessage = "Please place a bet";
+				} else {
+					if(bets.length ==0) {
+						errorMessage = "Please select numbers to bet on";
+					} else {
+						errorMessage = "The wheel is still spinning";
+					}
+				}
+			}
+			userResultBox.innerHTML = errorMessage;
 		}
 	}
 	function gotResponse(data) {
-		//resultBox.innerHTML = data;
-		gotResult = true;
 		ballImage.rotate(angles[Number(data)]*9.73);
+		requestPending = false;
 		if(in_array(data, bets)) {
 			userResultBox.innerHTML = "You won";
 			balance = balance+calculatePayout(betAmount);
@@ -66,11 +80,6 @@
 	function rotate() {
 		rouletteImage.rotate(animation_offset);
 		ballImage.rotate(animation_offset);
-		if(!gotResult) {
-			//ballImage.rotate(-animation_offset);
-		} else {
-			//ballImage.rotate(animation_offset);
-		}
 		animation_offset-=0.1;
 		if(animation_offset>0) {
 			window.setTimeout("rotate()", animation_time);
@@ -87,39 +96,10 @@
 	
 	function rotateBall() {
 		ballImage.rotate(9.73);
-	}
-	
-	function drawShape(){
-	  // get the canvas element using the DOM
-	  var canvas = document.getElementById('rouletteCanvas');
-
-	  // Make sure we don't execute when canvas isn't supported
-	  if (canvas.getContext){
-
-		// use getContext to use the canvas for drawing
-		var ctx = canvas.getContext('2d');
-
-		ctx.beginPath();
-		var x          = 75;               // x coordinate
-		var y          = 75;               // y coordinate
-		var radius     = 75;                    // Arc radius
-		var startAngle = 0;                     // Starting point on circle
-		var endAngle   = Math.PI*2; // End point on circle
-	
-		ctx.arc(x,y,radius,startAngle,endAngle, false);
-		ctx.stroke();
-		radius = 30;
-		ctx.beginPath();
-		ctx.arc(x,y,radius,startAngle,endAngle, false);
-		ctx.stroke;
-	  } else {
-		alert('You need Safari or Firefox 1.5+ to see this demo.');
-	  }
-  }
+	}  
  </script>                                                               
  </head>                                                                 
- <body onload="init()">                                                                  
-   <!-- we will add our HTML content here -->  
+ <body onload="init()">                                                                    
     <div style="width:100%">
 		Balance: <span id="balanceBox"/>
 	</div>
@@ -131,10 +111,8 @@
 	</div>
 	<div style="width:100%">
 		<input type="button" value="Spin" onClick="startSpin()" />
-		<input type="button" value="Rotate" onClick="rotateBall()" />
 	</div>
 	<div style="width:100%" id="userResultBox">
 	</div>
-	<canvas id="rouletteCanvas" />
  </body>                                                                 
  </html>
