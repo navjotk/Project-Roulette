@@ -5,10 +5,14 @@
  <script type="text/javascript"> 
 	var bets = new Array();
 	var rouletteImage;
+	var ballImage;
 	var animation_time = 20;
 	var animation_offset = 40;
 	var balance = 5000;
 	var betAmount = 0;
+	var angles = new Array(0,23,6,35,4,19,10,31,16,27,18,14,33,12,25,2,21,8,29,3,24,5,28,17,20,7,36,11,32,30,15,26,1,22,9,34,13);
+	var totalRotated = 0;
+	var gotResult = false;
 	String.prototype.trim = function() {
 		return this.replace(/^\s+|\s+$/g,"");
 	}
@@ -16,6 +20,9 @@
 		betAmount = txtAmount.value;
 		parseBets();
 		if(betAmount<=balance && betAmount>0 && bets.length>0) {
+			rouletteImage.rotate(0, true);
+			ballImage.rotate(0, true);
+			totalRotated = 0;
 			balance-=betAmount;
 			showBalance();
 			animation_offset = 40;
@@ -25,7 +32,9 @@
 		}
 	}
 	function gotResponse(data) {
-		resultBox.innerHTML = data;
+		//resultBox.innerHTML = data;
+		gotResult = true;
+		ballImage.rotate(angles[Number(data)]*9.73);
 		if(in_array(data, bets)) {
 			userResultBox.innerHTML = "You won";
 			balance = balance+calculatePayout(betAmount);
@@ -49,12 +58,19 @@
 	
 	function init() {
 		var paper = Raphael(10, 200, 800, 800);
-		rouletteImage = paper.image("img/roulette2.gif", 50, 50, 394, 400);
+		rouletteImage = paper.image("img/roulette2.gif", 50, 50, 400, 400);
+		ballImage = paper.image("img/ball.gif", 50, 50, 400, 400);
 		showBalance();
 	}
 	
 	function rotate() {
 		rouletteImage.rotate(animation_offset);
+		ballImage.rotate(animation_offset);
+		if(!gotResult) {
+			//ballImage.rotate(-animation_offset);
+		} else {
+			//ballImage.rotate(animation_offset);
+		}
 		animation_offset-=0.1;
 		if(animation_offset>0) {
 			window.setTimeout("rotate()", animation_time);
@@ -67,6 +83,10 @@
 	
 	function calculatePayout(bet) {
 		return Number(bet)+ Number(bet)*((36-bets.length)/bets.length);
+	}
+	
+	function rotateBall() {
+		ballImage.rotate(9.73);
 	}
 	
 	function drawShape(){
@@ -111,9 +131,7 @@
 	</div>
 	<div style="width:100%">
 		<input type="button" value="Spin" onClick="startSpin()" />
-	</div>
-	<div style="width:100%">
-		<span>Result: </span><span id="resultBox"/>
+		<input type="button" value="Rotate" onClick="rotateBall()" />
 	</div>
 	<div style="width:100%" id="userResultBox">
 	</div>
